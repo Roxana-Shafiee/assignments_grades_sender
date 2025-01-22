@@ -46,7 +46,7 @@ def generate_email(sender_email, student_name, student_email, grades):
     msg['Subject'] = "Your Assignment Grades"
 
     # Format grades into a message
-    grade_details = "\n".join([f"{col}: {grade}" for col, grade in grades.items()])
+    grade_details = "\n".join([f"{col.capitalize()}: {grade}" for col, grade in grades.items()])
     body = f"""
     Dear {student_name},
 
