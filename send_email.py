@@ -39,7 +39,7 @@ def identify_columns(df):
     return name_col, email_col
 
 # Generate a personalized email message
-def generate_email(sender_email, student_name, student_email, grades):
+def generate_email(sender_email, sender_name, student_name, student_email, grades):
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = student_email
@@ -54,7 +54,7 @@ def generate_email(sender_email, student_name, student_email, grades):
     {grade_details}
 
     Best,
-    Gane Ka-Shu Wong
+    {sender_name}
     """
 
     msg.attach(MIMEText(body, 'plain'))
@@ -86,7 +86,7 @@ def main():
         student_email = row[email_col]
         grades = row.drop([name_col, email_col]).to_dict()  # Exclude name & email
 
-        msg = generate_email(config["SENDER_EMAIL"], student_name, student_email, grades)
+        msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, grades)
         send_email(config, msg, student_email)
 
 if __name__ == "__main__":
