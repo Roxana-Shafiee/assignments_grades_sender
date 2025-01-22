@@ -2,5 +2,6 @@
 "SMTP_SERVER": "smtp.gmail.com",
 "SMTP_PORT": 587,
 "SENDER_EMAIL": "",
-"SENDER_PASSWORD": ""
+"SENDER_PASSWORD": "",
+"SENDER_NAME":""
 }
