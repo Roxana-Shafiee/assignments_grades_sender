@@ -34,7 +34,8 @@ Create a `config.json` file in the project root with the following structure:
     "SMTP_SERVER": "smtp.your-email-provider.com",
     "SMTP_PORT": 587,
     "SENDER_EMAIL": "your-email@example.com",
-    "SENDER_PASSWORD": "your-app-password"
+    "SENDER_PASSWORD": "your-app-password",
+    "SENDER_NAME": "your-name"
 }
 ```
 > ⚠️ **Do not share this file publicly!**
