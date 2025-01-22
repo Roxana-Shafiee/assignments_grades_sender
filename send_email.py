@@ -54,7 +54,7 @@ def generate_email(sender_email, student_name, student_email, grades):
     {grade_details}
 
     Best,
-    Your Instructor
+    Gane Ka-Shu Wong
     """
 
     msg.attach(MIMEText(body, 'plain'))
