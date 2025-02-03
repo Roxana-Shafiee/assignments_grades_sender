@@ -5,6 +5,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os
 import time
+import argparse
+
 
 # Load configuration from config.json
 def load_config(config_path="config.json"):
@@ -30,13 +32,27 @@ def identify_columns(df):
     # Convert column names to lowercase for case-insensitive matching
     df.columns = [col.lower() for col in df.columns]
     
-    name_col = next((col for col in possible_name_columns if col in df.columns), None)
-    email_col = next((col for col in possible_email_columns if col in df.columns), None)
+    # Check for 'first name' and 'last name' columns
+    if 'first name' in df.columns and 'last name' in df.columns:
+        # Combine 'first name' and 'last name' into a single 'name' column
+        df['name'] = df['first name'].str.strip() + ' ' + df['last name'].str.strip()
+        # Remove the original 'first name' and 'last name' columns
+        df.drop(['first name', 'last name'], axis=1, inplace=True)
+        name_col = 'name'
+    else:
+        # Check for existing name columns
+        name_col = next((col for col in possible_name_columns if col in df.columns), None)
+    
+    # Determine the email column
+    if 'ccid' in df.columns:
+        email_col = 'ccid'
+    else:
+        email_col = next((col for col in possible_email_columns if col in df.columns), None)
     
     if not name_col or not email_col:
         raise ValueError("Could not identify 'Name' or 'Email' columns in the dataset.")
-    
     return name_col, email_col
+
 
 # Generate a personalized email message
 def generate_email(sender_email, sender_name, student_name, student_email, grades):
@@ -74,12 +90,29 @@ def send_email(config, msg, student_email):
 
 # Main function
 def main():
-    config = load_config("config.json")  # Load SMTP credentials
-    file_path = "grades.xlsx"  # Replace with your actual file
-    df = load_grades(file_path)
+    parser = argparse.ArgumentParser(description="Process grades file address.")
     
-    name_col, email_col = identify_columns(df)
+    parser.add_argument(
+        "grades_address",
+        type=str,
+        nargs="?",  # Makes it optional
+        default="grades.xlsx",  # Default value if not provided
+        help="Path to the grades file (default: grades.xlsx)"
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default="config.json",
+        help="Path to the configuration file (default: config.json)"
+    )
 
+    args = parser.parse_args()
+    config = load_config(args.config)  # Load SMTP credentials
+    file_path = args.grades_address  # Replace with your actual file
+    df = load_grades(file_path)
+    print(df)
+    name_col, email_col = identify_columns(df)
+    print(name_col, email_col)
     for _, row in df.iterrows():
         time.sleep(0.5)
         student_name = row[name_col]
@@ -87,7 +120,8 @@ def main():
         grades = row.drop([name_col, email_col]).to_dict()  # Exclude name & email
 
         msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, grades)
-        send_email(config, msg, student_email)
+        print(msg)
+        # send_email(config, msg, student_email)
 
 if __name__ == "__main__":
     main()
