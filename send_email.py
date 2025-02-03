@@ -46,25 +46,34 @@ def identify_columns(df):
     # Determine the email column
     if 'ccid' in df.columns:
         email_col = 'ccid'
+        df['ccid']=df['ccid']+'@ualberta.ca'
     else:
         email_col = next((col for col in possible_email_columns if col in df.columns), None)
     
     if not name_col or not email_col:
         raise ValueError("Could not identify 'Name' or 'Email' columns in the dataset.")
-    return name_col, email_col
+    if 'id' in df.columns:
+      id_col='id'
+    else:
+      id_col=None
+    return name_col, email_col, id_col
 
 
 # Generate a personalized email message
-def generate_email(sender_email, sender_name, student_name, student_email, grades):
+def generate_email(sender_email, sender_name, student_name, student_email, student_id, grades):
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = student_email
     msg['Subject'] = "Your Assignment Grades"
 
     # Format grades into a message
+    if student_id:
+      id_message= f' with student ID: {student_id}'
+    else:
+      id_message=''
     grade_details = "\n".join([f"{col.capitalize()}: {grade}" for col, grade in grades.items()])
     body = f"""
-    Dear {student_name},
+    Dear {student_name}{id_message},
 
     Here are your assignment grades:
     {grade_details}
@@ -110,18 +119,23 @@ def main():
     config = load_config(args.config)  # Load SMTP credentials
     file_path = args.grades_address  # Replace with your actual file
     df = load_grades(file_path)
+    name_col, email_col, id_col = identify_columns(df)
     print(df)
-    name_col, email_col = identify_columns(df)
-    print(name_col, email_col)
+    print(name_col, email_col, id_col)
     for _, row in df.iterrows():
         time.sleep(0.5)
+        
         student_name = row[name_col]
         student_email = row[email_col]
-        grades = row.drop([name_col, email_col]).to_dict()  # Exclude name & email
-
-        msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, grades)
+        if id_col:
+          student_id= row[id_col]
+          grades = row.drop([name_col, email_col, id_col]).to_dict()  # Exclude name & email
+          msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, student_id, grades)
+        else:
+          grades = row.drop([name_col, email_col]).to_dict()  # Exclude name & email
+          msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, None, grades)
         print(msg)
-        # send_email(config, msg, student_email)
+        send_email(config, msg, student_email)
 
 if __name__ == "__main__":
     main()
