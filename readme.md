@@ -58,7 +58,7 @@ python email_grades_sender.py
 ```
 or
 ```bash
-python email_grades_sender.py path/to/your/grades
+python email_grades_sender.py path/to/your/grades.your_file_format
 ```
 This will:
 - Load the configuration and student data.
