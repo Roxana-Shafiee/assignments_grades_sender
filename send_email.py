@@ -60,11 +60,14 @@ def identify_columns(df):
 
 
 # Generate a personalized email message
-def generate_email(sender_email, sender_name, student_name, student_email, student_id, grades):
+def generate_email(sender_email, sender_name, student_name, student_email, student_id, grades, subject= None):
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = student_email
-    msg['Subject'] = "Your Assignment Grades"
+    if subject:
+      msg['Subject'] = subject
+    else:
+      msg['Subject'] = "Your Assignment Grades"
 
     # Format grades into a message
     if student_id:
@@ -73,13 +76,13 @@ def generate_email(sender_email, sender_name, student_name, student_email, stude
       id_message=''
     grade_details = "\n".join([f"{col.capitalize()}: {grade}" for col, grade in grades.items()])
     body = f"""
-    Dear {student_name}{id_message},
+Dear {student_name}{id_message},
 
-    Here are your assignment grades:
-    {grade_details}
+Here are your assignment grades:
+{grade_details}
 
-    Best,
-    {sender_name}
+Best,
+{sender_name}
     """
 
     msg.attach(MIMEText(body, 'plain'))
@@ -120,6 +123,8 @@ def main():
     file_path = args.grades_address  # Replace with your actual file
     df = load_grades(file_path)
     name_col, email_col, id_col = identify_columns(df)
+    assignments_name=file_path.split('/')[1].split('.')[0]
+    subject = f'Grades for {assignments_name}'
     for _, row in df.iterrows():
         time.sleep(0.5)
         
@@ -128,10 +133,10 @@ def main():
         if id_col:
           student_id= row[id_col]
           grades = row.drop([name_col, email_col, id_col]).to_dict()  # Exclude name & email
-          msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, student_id, grades)
+          msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, student_id, grades, subject)
         else:
           grades = row.drop([name_col, email_col]).to_dict()  # Exclude name & email
-          msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, None, grades)
+          msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, None, grades, subject)
         send_email(config, msg, student_email)
 
 if __name__ == "__main__":
