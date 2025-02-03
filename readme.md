@@ -49,12 +49,16 @@ You need a file (`grades.csv` or `grades.xlsx`) that contains student informatio
 | John Doe    | john@example.com   | 85          | 90          | 88         |
 | Jane Smith  | jane@example.com   | 92          | 88          | 94         |
 
-- Column names can vary, but the script will try to identify the **Name** and **Email** columns dynamically.
+- Column names can vary, but the script will try to identify the **Name**, **Email**, and **ID** columns dynamically.
 - Additional columns will be treated as assignment grades.
 
 ### 6. Run the Script
 ```bash
 python email_grades_sender.py
+```
+or
+```bash
+python email_grades_sender.py path/to/your/grades
 ```
 This will:
 - Load the configuration and student data.
