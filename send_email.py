@@ -120,8 +120,6 @@ def main():
     file_path = args.grades_address  # Replace with your actual file
     df = load_grades(file_path)
     name_col, email_col, id_col = identify_columns(df)
-    print(df)
-    print(name_col, email_col, id_col)
     for _, row in df.iterrows():
         time.sleep(0.5)
         
@@ -134,7 +132,6 @@ def main():
         else:
           grades = row.drop([name_col, email_col]).to_dict()  # Exclude name & email
           msg = generate_email(config["SENDER_EMAIL"],config["SENDER_NAME"], student_name, student_email, None, grades)
-        print(msg)
         send_email(config, msg, student_email)
 
 if __name__ == "__main__":
