@@ -80,6 +80,3 @@ Check your email account's **Sent Items** to verify that the emails were success
 - Customizable email templates
 
 ---
-
-Enjoy automating your email workflow! 🚀
-
